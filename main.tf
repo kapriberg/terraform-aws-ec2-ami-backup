@@ -98,6 +98,8 @@ resource "aws_lambda_function" "ami_backup" {
     variables = {
       region    = "${var.region}"
       ami_owner = "${var.ami_owner}"
+      instance_id = "${var.instance_id}"
+      retention   = "${var.retention}"
     }
   }
 }
@@ -114,8 +116,9 @@ resource "aws_lambda_function" "ami_cleanup" {
 
   environment = {
     variables = {
-      region    = "${var.region}"
-      ami_owner = "${var.ami_owner}"
+      region      = "${var.region}"
+      ami_owner   = "${var.ami_owner}"
+      instance_id = "${var.instance_id}"
     }
   }
 }

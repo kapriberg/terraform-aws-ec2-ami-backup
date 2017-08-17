@@ -20,6 +20,10 @@ variable "retention" {
   default = ""
 }
 
+variable "instance_id" {
+  default = ""
+}
+
 variable "name" {
   default = ""
 }
