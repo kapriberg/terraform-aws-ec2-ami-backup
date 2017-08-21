@@ -16,7 +16,7 @@ variable "region" {
   default = ""
 }
 
-variable "retention" {
+variable "retention_days" {
   default = ""
 }
 

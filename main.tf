@@ -73,6 +73,13 @@ module "label_cleanup" {
   name      = "${var.name}-cleanup"
 }
 
+module "label_id" {
+  source    = "git::https://github.com/cloudposse/tf_label.git?ref=tags/0.1.0"
+  namespace = "${var.namespace}"
+  stage     = "${var.stage}"
+  name      = "${var.name}"
+}
+
 resource "aws_iam_role" "ami_backup" {
   name               = "${module.label.id}"
   assume_role_policy = "${data.aws_iam_policy_document.default.json}"
@@ -87,7 +94,7 @@ resource "aws_iam_role_policy" "ami_backup" {
 resource "aws_lambda_function" "ami_backup" {
   filename         = "${path.module}/ami_backup.zip"
   function_name    = "${module.label_backup.id}"
-  description      = "Automatically backup instances tagged with 'Snapshot: true'"
+  description      = "Automatically backup instance using instance id"
   role             = "${aws_iam_role.ami_backup.arn}"
   timeout          = 60
   handler          = "ami_backup.lambda_handler"
@@ -99,7 +106,8 @@ resource "aws_lambda_function" "ami_backup" {
       region    = "${var.region}"
       ami_owner = "${var.ami_owner}"
       instance_id = "${var.instance_id}"
-      retention   = "${var.retention}"
+      retention   = "${var.retention_days}"
+      label_id    = "${module.label_id.id}"
     }
   }
 }
