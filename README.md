@@ -10,21 +10,40 @@ the code at
 
 Include this repository as a module in your existing terraform code:
 
+```
+module "lambda_ami_backup" {
+  source = "git::https://github.com/cloudposse/tf_ami_backup.git?ref=tags/0.1.0"
+
+  name           = "${var.name}"
+  stage          = "${var.stage}"
+  namespace      = "${var.namespace}"
+  region         = "${var.region}"
+  ami_owner      = "${var.ami_owner}"
+  instance_id    = "${var.instance_id}"
+  retention_days = "14"
+}
+```
+
+Example on excluding some of attached EBS volumes:
 
 ```
 module "lambda_ami_backup" {
   source = "git::https://github.com/cloudposse/tf_ami_backup.git?ref=tags/0.1.0"
 
-  name              = "${var.name}"
-  stage             = "${var.stage}"
-  namespace         = "${var.namespace}"
-  region            = "${var.region}"
-  ami_owner         = "${var.ami_owner}"
-  instance_id       = "${var.instance_id}"
-  retention_days    = "14"
+  name           = "${var.name}"
+  stage          = "${var.stage}"
+  namespace      = "${var.namespace}"
+  region         = "${var.region}"
+  ami_owner      = "${var.ami_owner}"
+  instance_id    = "${var.instance_id}"
+  retention_days = "14"
+
+  block_device_mappings = [
+    { "DeviceName" = "/dev/xvdf", "NoDevice" = "" },
+    { "DeviceName" = "/dev/xvdg", "NoDevice" = "" },
+  ]
 }
 ```
-
 
 ## Variables
 
@@ -39,4 +58,5 @@ module "lambda_ami_backup" {
 | retention_days               | `14`           | Is the number of days you want to keep the backups for (e.g. `14`)| No     |
 | backup_schedule              | `cron(00 19 * * ? *)` | The scheduling expression. (e.g. cron(0 20 * * ? *) or rate(5 minutes) | No       |
 | cleanup_schedule             | `cron(05 19 * * ? *)` | The scheduling expression. (e.g. cron(0 20 * * ? *) or rate(5 minutes) | No       |
-| reboot                       | `false`         | Reboot the machine as part of the snapshot process      | No       |
+| reboot                       | `false`        | Reboot the machine as part of the snapshot process       | No       |
+| block_device_mappings        | `[]`           | List of block device mappings to be included/excluded from created AMIs. With default value of [], AMIs will include all attached EBS volumes. | No       |
