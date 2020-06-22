@@ -1,5 +1,11 @@
-locals {
-  module_relpath = "${substr(path.module, length(path.cwd) + 1, -1)}"
+terraform {
+  required_version = "= 0.12.26"
+}
+
+terraform {
+  required_providers {
+    aws = "~> 2.66"
+  }
 }
 
 data "aws_iam_policy_document" "default" {
@@ -50,14 +56,14 @@ data "aws_iam_policy_document" "ami_backup" {
 
 data "archive_file" "ami_backup" {
   type        = "zip"
-  source_file = "${local.module_relpath}/ami_backup.py"
-  output_path = "${local.module_relpath}/ami_backup.zip"
+  source_file = "${path.module}/ami_backup.py"
+  output_path = "${path.module}/ami_backup.zip"
 }
 
 data "archive_file" "ami_cleanup" {
   type        = "zip"
-  source_file = "${local.module_relpath}/ami_cleanup.py"
-  output_path = "${local.module_relpath}/ami_cleanup.zip"
+  source_file = "${path.module}/ami_cleanup.py"
+  output_path = "${path.module}/ami_cleanup.zip"
 }
 
 module "label" {
@@ -109,7 +115,7 @@ resource "aws_lambda_function" "ami_backup" {
   runtime          = "python2.7"
   source_code_hash = "${data.archive_file.ami_backup.output_base64sha256}"
 
-  environment = {
+  environment {
     variables = {
       region                = "${var.region}"
       ami_owner             = "${var.ami_owner}"
@@ -132,7 +138,7 @@ resource "aws_lambda_function" "ami_cleanup" {
   runtime          = "python2.7"
   source_code_hash = "${data.archive_file.ami_cleanup.output_base64sha256}"
 
-  environment = {
+  environment {
     variables = {
       region      = "${var.region}"
       ami_owner   = "${var.ami_owner}"

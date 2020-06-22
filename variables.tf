@@ -54,3 +54,8 @@ variable "reboot" {
   default     = "false"
   description = "Reboot the machine as part of the snapshot process"
 }
+
+variable "tags" {
+  default = {}
+  type = map
+}
